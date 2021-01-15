@@ -1,8 +1,10 @@
 import {
     Raycaster, Vector2, Scene,  WebGLRenderer, PerspectiveCamera,
-    AmbientLight, DirectionalLight, Color
+    AmbientLight, DirectionalLight, Color , AnimationMixer , Clock
   } from 'three';
   import  TrackballControls  from 'three-trackballcontrols/index.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'   
+const TWEEN = require('@tweenjs/tween.js') 
 export default class Base {
     constructor(dom){
         this.camera = null
@@ -11,9 +13,13 @@ export default class Base {
         this.scene = new Scene()
         this.controls = null
         this.mouse = new Vector2()
-        this.raycaster = new Raycaster()
+        // this.raycaster = new Raycaster()
         this.canvas = document.querySelector(dom)
         this.setWidthAndHeight()
+        this.tween = new TWEEN.Tween()
+        this.loade = new GLTFLoader()
+        this.mixer = null
+        this.clock = new Clock()  // 调用动画帧需要初始化
     }
     init(){
         this.initRender()
@@ -36,14 +42,22 @@ export default class Base {
             this.renderer.render(this.scene,this.camera)
             this.renderer.setViewport(this.width -size, this.height-size, size, size)
             this.controls.update();
+            this.tween.update()
+            if(this.mixer){
+                const delta = this.clock.getDelta()
+                this.mixer.update(delta)
+            }
+           
         });
     }
+
+
     render(){
         const size = 2000
         this.renderer.setViewport(0,0, this.width, this.height)
         this.renderer.render(this.scene,this.camera)
         this.renderer.setViewport(this.width -size, this.height-size, size, size)
-
+      
     }
     initLight(){
         const light1 = new AmbientLight(0xFFFFFF, 0.5)
@@ -92,10 +106,10 @@ export default class Base {
 
         this.mouse.x = ((event.clientX - canvas.getBoundingClientRect().left) / canvas.offsetWidth) *2 -1
         this.mouse.y = ((event.clientY - canvas.getBoundingClientRect().top) / canvas.offsetHeight) *2 +1
+        let raycaster = new Raycaster()
+        raycaster(this.mouse, this.camera)
 
-        this.raycaster(this.mouse, this.camera)
-
-        return this.raycaster.intersectObjects(objects, true)
+        return raycaster.intersectObjects(objects, true)
     }
 
     initControls(){
@@ -108,6 +122,19 @@ export default class Base {
         this.controls.noPan = false
         this.controls.staticMoving = true
         this.controls.dynamicDampingFactor = 0.1
+    }
+
+    loader(file){
+        if(typeof(file) ==='string'){
+                this.loade.load(file,obj=>{
+                    this.scene.add(obj.scene)
+                    if(obj.animations.length>0){
+                        this.mixer = new AnimationMixer(obj.scene)
+                        const clip = obj.animations[0]
+                        this.mixer.clipAction(clip.optimize()).play()
+                    }
+                })
+        }
     }
 
     initWindowResize = () => window.addEventListener("resize", () => this.resize());

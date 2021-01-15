@@ -23,7 +23,7 @@ export default {
     const grid = new GridHelper(100, 20, 0x000000, 0x000000);
     grid.material.opacity = 0.2;
     grid.material.transparent = true;
-   
+    
     onMounted(() => {
       window.view = new View("#webgl", this);
       const axesHelper = new THREE.AxesHelper( 50 );
@@ -38,12 +38,18 @@ export default {
       let Cylinder = drawCylinder()
       box .position.set(0,0,20)
       Cylinder.position.set(10,0,10)
-      scene.add(tube)
+      // scene.add(tube)
       console.log(sprite)
       scene.add( sprite );
       scene.add( axesHelper );
-      scene.add(box)
-      scene.add(Cylinder)
+      // scene.add(box)
+      // scene.add(Cylinder)
+      // window.view.loader('model.glb')
+      const click = (event)=>{
+            // let ray =  window.view.getRaycasters(event,view.scene.children)
+            // console.log(ray)
+          }
+      window.addEventListener('click',click(),false)
     });
     return{
     }

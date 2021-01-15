@@ -4,7 +4,7 @@ import {
     MeshPhongMaterial,
     TextureLoader, TubeGeometry,
     Vector3, RepeatWrapping, PointsMaterial, AdditiveBlending,
-    Texture, BoxBufferGeometry,CylinderBufferGeometry
+    Texture, BoxBufferGeometry,CylinderBufferGeometry,DoubleSide
 } from "three"
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
@@ -17,7 +17,7 @@ const pathArr = [
     10, 0, 10
 ]
 const radius = 2
-
+// const tween = window.view.tween
 function drawLine() {
 
     let currArr = []
@@ -37,7 +37,7 @@ function drawLine() {
     // 设置x方向的重复数(沿着管道路径方向)
     // 设置y方向的重复数(环绕管道方向)
     texture.repeat.x = 10
-    texture.repeat.y = 5
+    texture.repeat.y = 2
 
     //管道纹理偏移
     texture.offset.y = 0.5
@@ -53,6 +53,7 @@ function drawLine() {
         texture.offset.x -= 0.0076
     })
 
+    console.log('tween',window.view)
     return tube
 
 }
@@ -100,7 +101,8 @@ function drawCylinder(){
 
     let tubeMaterial = new MeshPhongMaterial({
         map: texture,
-        transparent: true
+        transparent: true,
+        side: DoubleSide
     })
 
     const geometry = new CylinderBufferGeometry( 5, 5, 20, 32 ,1,true);

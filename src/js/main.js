@@ -13,7 +13,8 @@ export default class View extends Base{
             lookAt: new Vector3(0,0,0)
         },
         backgroundColor: "black",
-        exposure: 1.5
+        exposure: 1.5,
+        file: 'bz.glb'
     }
 
     constructor(dom, $){
@@ -29,5 +30,8 @@ export default class View extends Base{
         super.initLight()
         this.initCamera = this.camera.clone();
         super.setDefaultBackground(this.config.backgroundColor)
+        console.log(this.config.file)
+        super.loader(this.config.file)
     }
+
 }
