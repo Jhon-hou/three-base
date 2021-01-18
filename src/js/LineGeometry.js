@@ -7,8 +7,6 @@ import {
     Texture, BoxBufferGeometry,CylinderBufferGeometry,DoubleSide
 } from "three"
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-// import {GLTFLoader} from './GLTFLoader'
 const pathArr = [
     -10, 0, 10,
     -5, 5, 5,
@@ -53,7 +51,6 @@ function drawLine() {
         texture.offset.x -= 0.0076
     })
 
-    console.log('tween',window.view)
     return tube
 
 }
@@ -113,44 +110,6 @@ function drawCylinder(){
     return Cylinder
 }
 
-function loadModel() {
-    let loader = new GLTFLoader()
-    loader.load('/model.glb', gltf => {
-        let material = new PointsMaterial({
-            color: 0xffffff,
-            size: 0.4,
-            opacity: 0.6,
-            transparent: true,
-            blending: AdditiveBlending,
-            depthTest: false,
-            map: generateSprite()
-        })
-        // let mesh = new Mesh(gltf.scene.children[0],material)
-
-        // gltf.scene.children[0].boundingBox();
-        // gltf.scene.children[0].center(); //居中显示
-        // window.view.scene.add(gltf.scene.children[0])
-        let obj = gltf.scene.children[0]
-        // obj.children.map(m=>{
-        //     m.children.map(l=>{
-        //         l.children.map(i=>{
-        //             // let mesh = new Mesh(i.geometry,material)
-        //             //    mesh.rotation.x = -0.5 * Math.PI; //将模型摆正
-        //             // // mesh.scale.set(0.1, 0.1, 0.1); //缩放
-        //             // i.geometry.center()
-        //             window.view.scene.add(i)
-        //         })
-        //     })
-        // })
-        window.view.scene.add(obj)
-        console.log(material)
-    }, (xhr) => {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-    }, (error) => {
-        console.log('An error happened', error)
-    })
-}
-
 function generateSprite() {
     let canvas = document.createElement('canvas')
     canvas.width = 16
@@ -175,7 +134,6 @@ function generateSprite() {
 }
 export {
     drawLine,
-    loadModel,
     drawBox,
     drawCylinder
 }

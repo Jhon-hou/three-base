@@ -31,7 +31,6 @@ export default class View extends Base{
         super.initPass()
         this.initCamera = this.camera.clone();
         super.setDefaultBackground(this.config.backgroundColor)
-        // super.loader(this.config.file)
     }
     Loader(file){
       return  super.loader(file)
