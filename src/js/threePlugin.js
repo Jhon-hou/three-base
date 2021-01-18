@@ -1,9 +1,14 @@
 import {
     Raycaster, Vector2, Scene,  WebGLRenderer, PerspectiveCamera,
-    AmbientLight, DirectionalLight, Color , AnimationMixer , Clock
+    AmbientLight, DirectionalLight, Color , AnimationMixer , Clock ,
+    ReinhardToneMapping
   } from 'three';
   import  TrackballControls  from 'three-trackballcontrols/index.js';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'   
+import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer'
+import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass'
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
+
 const TWEEN = require('@tweenjs/tween.js') 
 export default class Base {
     constructor(dom){
@@ -20,11 +25,11 @@ export default class Base {
         this.loade = new GLTFLoader()
         this.mixer = null
         this.clock = new Clock()  // 调用动画帧需要初始化
+        this.comporser = null
     }
     init(){
         this.initRender()
         this.initWindowResize()
-
     }
 
     initRender(){
@@ -32,15 +37,20 @@ export default class Base {
         this.renderer.setSize(this.width, this.height)
         this.renderer.setPixelRatio(window.devicePixelRatio)
         this.renderer.setClearColor(0xeeeeee)
-
+        // this.renderer.toneMapping = ReinhardToneMapping
+        // this.renderer.toneMapping = 1
         this.canvas.appendChild(this.renderer.domElement)
 
         this.renderer.autoClear = false;
         this.renderer.setAnimationLoop(() => {
-            const size = 2000
-            this.renderer.setViewport(0,0, this.width, this.height)
+
+            this.renderer.clear()
+            this.camera.layers.set(1)
+            this.comporser.render()
+
+            this.renderer.clearDepth()
+            this.camera.layers.set(0)
             this.renderer.render(this.scene,this.camera)
-            this.renderer.setViewport(this.width -size, this.height-size, size, size)
             this.controls.update();
             this.tween.update()
             if(this.mixer){
@@ -51,14 +61,17 @@ export default class Base {
         });
     }
 
+    initPass(){
+        let renderPass = new RenderPass(this.scene,this.camera)
+        let bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth,window.innerHeight),1.5,0.4,0.85)
+        bloomPass.renderToScreen = true
 
-    render(){
-        const size = 2000
-        this.renderer.setViewport(0,0, this.width, this.height)
-        this.renderer.render(this.scene,this.camera)
-        this.renderer.setViewport(this.width -size, this.height-size, size, size)
-      
+        this.comporser = new EffectComposer(this.renderer)
+        this.comporser.setSize(window.innerWidth,window.innerHeight)
+        this.comporser.addPass(renderPass)
+        this.comporser.addPass(bloomPass)
     }
+  
     initLight(){
         const light1 = new AmbientLight(0xFFFFFF, 0.5)
         light1.name = 'amb_light'
@@ -70,7 +83,7 @@ export default class Base {
         this.scene.add(light2)
     }
 
-   
+    
 
     setWidthAndHeight() {
         this.width = window.innerWidth;
@@ -83,7 +96,10 @@ export default class Base {
         this.camera.aspect = this.width / this.height
         this.camera.updateProjectionMatrix()
         this.renderer.setSize(this.width , this.height)
-        // this.controls.update();
+
+        if(this.comporser){
+            this.comporser.setSize(this.width , this.height)
+        }
     }
 
     setCamera({fov, near, far, position, up, lookAt }){
@@ -107,14 +123,13 @@ export default class Base {
         this.mouse.x = ((event.clientX - canvas.getBoundingClientRect().left) / canvas.offsetWidth) *2 -1
         this.mouse.y = ((event.clientY - canvas.getBoundingClientRect().top) / canvas.offsetHeight) *2 +1
         let raycaster = new Raycaster()
-        raycaster(this.mouse, this.camera)
-
-        return raycaster.intersectObjects(objects, true)
+        raycaster.setFromCamera(this.mouse,this.camera)
+        // console.log(raycaster.intersectObjects(objects, true)[0])
+        return raycaster.intersectObjects(objects, true)[0]
     }
 
     initControls(){
         this.controls = new TrackballControls(this.camera, this.canvas)
-        console.log(this.controls)
         this.controls.rotateSpeed = 7
         this.controls.zoomSpeed = 6
         this.controls.panSpeed = 2

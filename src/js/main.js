@@ -14,7 +14,7 @@ export default class View extends Base{
         },
         backgroundColor: "black",
         exposure: 1.5,
-        file: 'bz.glb'
+        file: 'xz.glb'
     }
 
     constructor(dom, $){
@@ -28,10 +28,15 @@ export default class View extends Base{
         super.setCamera(this.config.camera)
         super.initControls();
         super.initLight()
+        super.initPass()
         this.initCamera = this.camera.clone();
         super.setDefaultBackground(this.config.backgroundColor)
-        console.log(this.config.file)
-        super.loader(this.config.file)
+        // super.loader(this.config.file)
     }
-
+    Loader(file){
+      return  super.loader(file)
+    }
+    getRaycasters(event,objects){
+      return  super.getRaycasters(event,objects)
+    }
 }

@@ -44,12 +44,28 @@ export default {
       scene.add( axesHelper );
       // scene.add(box)
       // scene.add(Cylinder)
-      // window.view.loader('model.glb')
-      const click = (event)=>{
-            // let ray =  window.view.getRaycasters(event,view.scene.children)
-            // console.log(ray)
-          }
-      window.addEventListener('click',click(),false)
+     let xz = window.view.loader('xz.glb')
+
+      let meshMaterialBloom =  new THREE.MeshBasicMaterial( { color: 0xC3C3C3,transparent: true,opacity: 1} );
+
+			var geometryBloom = new THREE.BoxGeometry( 10, 10, 10 );
+			var cubeBloom = new THREE.Mesh( geometryBloom, meshMaterialBloom );
+			cubeBloom.layers.enable(1);
+      scene.add( cubeBloom );
+      
+      let meshMaterial =  new THREE.MeshBasicMaterial( { color: 0x2983ff,transparent: true,opacity: 1} );
+			var geometry = new THREE.BoxGeometry( 10, 10, 10 );
+
+			var mesh = new THREE.Mesh( geometry, meshMaterial );
+			
+			mesh.position.set( 50, 0, 0 );
+      scene.add( mesh );
+      
+      
+      window.addEventListener('click',(event)=>{
+        let ray =  window.view.getRaycasters(event,view.scene.children)
+        console.log('ray',ray)
+      },false)
     });
     return{
     }
